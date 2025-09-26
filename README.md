@@ -74,3 +74,6 @@ Role enforcement is implemented via AuthService, AuthGuard, and UI conditionals 
 Open http://localhost:4200 to use the app.
 
 
+Please note that this project currently does not include comprehensive unit test coverage. Due to concurrent deliverables and time constraints in my current role, I prioritized core functionality and feature delivery.
+
+
