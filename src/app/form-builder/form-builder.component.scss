@@ -1,0 +1,50 @@
+.container {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+
+    .field-types {
+        width: 150px;
+        border: 1px solid #aaa;
+        padding: 1rem;
+
+        .list {
+            border: 1px solid #ccc;
+            padding: 0.3rem;
+            margin-bottom: 0.3rem;
+            cursor: grab;
+        }
+    }
+
+    .form-canvas {
+        flex: 1;
+        border: 1px solid #aaa;
+        padding: 1rem;
+
+        .selected-fields-list {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .delete-button {
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+    }
+
+    .fields-edit {
+        width: 300px;
+        border: 1px solid #aaa;
+        padding: 1rem;
+    }
+}
+
+
+.form-preview {
+    margin-top: 2rem;
+    border-top: 2px solid #666;
+    padding-top: 1rem;
+}

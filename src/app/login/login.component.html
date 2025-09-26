@@ -1,0 +1,19 @@
+<div class="login-container">
+  <mat-card class="login-card">
+    <mat-card-title>Login</mat-card-title>
+    <mat-card-content>
+      <div>
+        <mat-label>Select Role:</mat-label>
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-select [(value)]="selectedRole" required>
+            <mat-option value="admin">Admin</mat-option>
+            <mat-option value="user">User</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="button-container">
+        <button mat-raised-button color="primary" (click)="login()">Login</button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,131 @@
+<mat-toolbar color="primary">Drag & Drop Form Builder</mat-toolbar>
+
+<div class="container">
+  <div class="field-types">
+    <h4>Field Types</h4>
+    <div cdkDropList id="palette" [cdkDropListData]="fieldTypes" [cdkDropListConnectedTo]="['canvas']" class="palette-list">
+      <div *ngFor="let type of fieldTypes" cdkDrag class="list">{{type | titlecase}}</div>
+    </div>
+  </div>
+
+  <div class="form-canvas" [class.readonly]="!canEdit()">
+    <h4>Drag Fields Here</h4>
+    <div class="form-canvas" cdkDropList id="canvas" [cdkDropListData]="formFields"
+      [cdkDropListConnectedTo]="['palette']" (cdkDropListDropped)="onDrop($event)" style="min-height: 200px;">
+
+      <div *ngFor="let field of formFields; let idx = index" cdkDrag (click)="selectField(idx)"
+        class="selected-fields-list"
+        [style.border]="selectedFieldIndex === idx ? '2px solid blue' : '1px solid lightgray'">
+
+        <strong>{{field.label}}</strong> ({{field.type}})
+
+        <button *ngIf="canEdit()" class="delete-button" mat-icon-button color="warn"
+          (click)="deleteField(idx); $event.stopPropagation()">
+          <mat-icon>delete</mat-icon>
+        </button>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="fields-edit" *ngIf="canEdit() && editForm">
+    <h4>Edit Field</h4>
+    <form [formGroup]="editForm">
+      <label>Label:
+        <input formControlName="label" />
+      </label>
+      <br /><br />
+
+      <label>
+        Required:
+        <input type="checkbox" formControlName="required" />
+      </label>
+      <br /><br />
+
+      <label>Help Text:
+        <input formControlName="helpText" />
+      </label>
+      <br /><br />
+
+      <div *ngIf="['select', 'checkbox', 'radio'].includes(editForm.get('type')?.value)">
+        <label>Options (comma separated):
+          <input [value]="editForm.get('options')?.value?.join(', ')"
+            (input)="updateOptions($event, selectedFieldIndex!)" />
+        </label>
+        <br /><br />
+      </div>
+
+      <label *ngIf="['text', 'textarea'].includes(editForm.get('type')?.value)">
+        Min Length:
+        <input type="number" formControlName="minLength" />
+      </label>
+      <br /><br />
+
+      <label *ngIf="['text', 'textarea'].includes(editForm.get('type')?.value)">
+        Max Length:
+        <input type="number" formControlName="maxLength" />
+      </label>
+      <br /><br />
+
+      <label *ngIf="['text', 'textarea'].includes(editForm.get('type')?.value)">
+        Pattern:
+        <input formControlName="pattern" />
+      </label>
+      <br /><br />
+
+      <button type="button" (click)="onSave()">Save</button>
+      <button type="button" (click)="cancelEdit()">Cancel</button>
+    </form>
+  </div>
+</div>
+
+<div class="form-preview">
+  <h4>Form Preview</h4>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <ng-container formArrayName="fields">
+      <div *ngFor="let control of fields.controls; let i = index" [formGroupName]="i" style="margin-bottom: 1rem;">
+        <label>{{ control.get('label')?.value }} <span *ngIf="control.get('required')?.value">*</span></label>
+        <ng-container [ngSwitch]="control.get('type')?.value">
+          <input *ngSwitchCase="'text'" formControlName="value" />
+          <textarea *ngSwitchCase="'textarea'" formControlName="value"></textarea>
+          <select *ngSwitchCase="'select'" formControlName="value">
+            <option *ngFor="let option of control.get('options')?.value" [value]="option">{{ option }}</option>
+          </select>
+          <div *ngSwitchCase="'checkbox'">
+            <label *ngFor="let option of control.get('options')?.value; let idx = index">
+              <input type="checkbox" [value]="option" (change)="onCheckboxChange($event, i)"
+                [checked]="isChecked(i, option)" />{{ option }}
+            </label>
+          </div>
+          <input *ngSwitchCase="'date'" type="date" formControlName="value" />
+          <div *ngSwitchCase="'radio'">
+            <label *ngFor="let option of control.get('options')?.value">
+              <input type="radio" [value]="option" formControlName="value" />{{ option }}
+            </label>
+          </div>
+        </ng-container>
+        <mat-icon *ngIf="control.get('helpText')?.value" [matTooltip]="control.get('helpText')?.value">help</mat-icon>
+        <div style="color:red"
+          *ngIf="control.get('value')?.invalid && (control.get('value')?.touched || control.get('value')?.dirty)">
+          <div *ngIf="control.get('value')?.errors?.['required']">This field is required</div>
+          <div *ngIf="control.get('value')?.errors?.['minlength']">Minimum length not met</div>
+          <div *ngIf="control.get('value')?.errors?.['maxlength']">Maximum length exceeded</div>
+          <div *ngIf="control.get('value')?.errors?.['pattern']">Invalid format</div>
+        </div>
+      </div>
+    </ng-container>
+    <button type="submit" [disabled]="form.invalid || submitting">Submit</button>
+
+    <div *ngIf="submitting">Submitting Form...</div>
+    <div *ngIf="submitError" style="color: red;">{{ submitError }}</div>
+
+    <div *ngIf="submittedData" style="margin-top: 1rem; border: 1px solid #ccc; padding: 1rem;">
+      <h4>Submitted Data</h4>
+      <ul>
+        <li *ngFor="let item of submittedData">
+          <strong>{{item.label}}:</strong> {{item.value}}
+        </li>
+      </ul>
+    </div>
+  </form>
+</div>
